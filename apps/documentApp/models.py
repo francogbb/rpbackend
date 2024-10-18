@@ -2,6 +2,8 @@ from django.db import models
 from ..userApp.models import Profile, GroupUser 
 from ..academicApp.models import Area
 from datetime import datetime
+from cryptography.fernet import Fernet
+from django.core.files.base import ContentFile
 
 # Create your models here.
 
@@ -45,7 +47,23 @@ class Document(models.Model):
     publication_year = models.IntegerField(default=datetime.now().year)
     author = models.ManyToManyField(GroupUser)
     type_document = models.ForeignKey(TypeDocument, on_delete=models.CASCADE) 
+    encryption_key = models.BinaryField(null=True, blank=True) # Guardar la llave de encriptación buscar como guardar de forma segura --------------------------------------->
+    def save(self, *args, **kwargs):
+        # Generar y guardar la clave de cifrado
+        self.encryption_key = Fernet.generate_key()
+        cipher = Fernet(self.encryption_key)
 
+        if self.document:
+            # Leer el contenido del archivo original
+            pdf_content = self.document.read()  # Leer el contenido
+            self.document.seek(0)  # Reiniciar el puntero del archivo
+            encrypted_content = cipher.encrypt(pdf_content)  # Cifrar el contenido
+
+            # Guardar el archivo cifrado
+            encrypted_file_name = f'encrypted_{self.document.name}'
+            self.document.save(encrypted_file_name, ContentFile(encrypted_content), save=False)
+        
+        super().save(*args, **kwargs)
     def __str__(self):
         return self.title
 
