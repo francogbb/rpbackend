@@ -16,3 +16,9 @@ router.register(r'statistics', StatisticsViewSet, basename='statistics')
 router.register(r'typeDocument', TypeDocumentViewSet, basename='typeDocument')
 
 urlpatterns = router.urls
+
+from django.urls import path
+
+urlpatterns += [
+    path('document/<int:pk>/desencriptar', DocumentViewSet.as_view({'get': 'desencriptar_documento'})),
+]

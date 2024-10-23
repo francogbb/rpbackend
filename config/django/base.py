@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 from datetime import timedelta
 from config.env import BASE_DIR, env
-
+from storages.backends.s3boto3 import S3Boto3Storage
 
 env.read_env(os.path.join(BASE_DIR, '.env'))
 
@@ -66,6 +66,7 @@ LOCAL_APPS = [
 THIRD_APPS = [
     'rest_framework',
     'corsheaders',
+    'storages',
 ]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
@@ -165,6 +166,13 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+# - Configuracion para AWS ----------------------------------------------------------------------->
+from config.settings.file_storage import *
+
+
 # MEDIA CONFIGURATION ----------------------------------------------------------------------------->
-MEDIA_URL = '/media/'
+MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
+
+
+# DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
