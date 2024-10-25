@@ -20,5 +20,5 @@ urlpatterns = router.urls
 from django.urls import path
 
 urlpatterns += [
-    path('document/<int:pk>/desencriptar', DocumentViewSet.as_view({'get': 'desencriptar_documento'})),
+    path('document/<int:pk>/desencriptar/', DocumentViewSet.as_view({'get': 'desencriptar_documento'})),
 ]

@@ -49,8 +49,9 @@ class Document(models.Model):
     type_document = models.ForeignKey(TypeDocument, on_delete=models.CASCADE) 
     encryption_key = models.BinaryField(null=True, blank=True) # Guardar la llave de encriptación buscar como guardar de forma segura --------------------------------------->
     def save(self, *args, **kwargs):
-        # Generar y guardar la clave de cifrado
-        self.encryption_key = Fernet.generate_key()
+        if not self.encryption_key:
+            # Generar y guardar la clave de cifrado
+            self.encryption_key = Fernet.generate_key()
         cipher = Fernet(self.encryption_key)
 
         if self.document:
