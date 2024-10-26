@@ -1,5 +1,5 @@
 from django.db import models
-from ..userApp.models import Profile, GroupUser 
+from ..userApp.models import Profile, CustomGroup
 from ..academicApp.models import Area
 from datetime import datetime
 
@@ -43,7 +43,7 @@ class Document(models.Model):
     entry_date = models.DateTimeField(auto_now_add=True)
     available_date = models.DateTimeField(auto_now_add=True) 
     publication_year = models.IntegerField(default=datetime.now().year)
-    author = models.ManyToManyField(GroupUser)
+    author = models.ManyToManyField(CustomGroup)
     type_document = models.ForeignKey(TypeDocument, on_delete=models.CASCADE) 
 
     def __str__(self):
