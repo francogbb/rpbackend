@@ -1,7 +1,9 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from ...models import Document
+from ...models import Document,Statistics
 from ..serializers.documentSerializer import DocumentSerializer
+from django.utils import timezone
+from datetime import timedelta
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import HttpResponse, HttpResponseServerError
 from cryptography.fernet import Fernet, InvalidToken
@@ -32,9 +34,15 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = f'inline; filename="{documento.title}"'
-            response.write(contenido_desencriptado) 
-            
-            
+            response.write(contenido_desencriptado)
+
+           # Obtiene el modelo de statics de views y despues crea la estadistica 
+            stats, created = Statistics.objects.get_or_create(document=documento)
+            # Ve el tiempo real o la ultima vez que se vio el documento y si es mayor a 5 seg se suma una vista
+            if not stats.last_viewed or timezone.now() - stats.last_viewed > timedelta(seconds=5):
+                stats.views += 1
+                stats.last_viewed = timezone.now()
+                stats.save(update_fields=['views', 'last_viewed'])
             return response
         except Document.DoesNotExist:
             return HttpResponse("Documento no encontrado", status=404) 

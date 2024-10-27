@@ -73,6 +73,7 @@ class Statistics(models.Model):
     views = models.IntegerField(default=0)
     requests = models.IntegerField(default=0)
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
+    last_viewed = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return f"Estadísticas de {self.document.title}"
