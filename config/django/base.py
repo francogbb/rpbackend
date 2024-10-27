@@ -34,18 +34,12 @@ ALLOWED_HOSTS = ["*"]
 #CONFIGURATION JSON WEB TOKENS
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "apps.userApp.authentication.CustomJWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.IsAuthenticated",
     ],
 }
-
-SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=30),
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
-}
-
 
 # Application definition
 BASE_APPS = [
@@ -67,6 +61,7 @@ THIRD_APPS = [
     'rest_framework',
     'corsheaders',
     'storages',
+    'djoser',
 ]
 
 INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
@@ -75,12 +70,12 @@ INSTALLED_APPS = BASE_APPS + LOCAL_APPS + THIRD_APPS
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 
@@ -106,8 +101,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOWS_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000", 
+]
+#CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+
 
 
 # Database
@@ -123,6 +122,25 @@ DATABASES = {
         'PORT': env('DATABASE_PORT'),
     }
 }
+
+# Djoser Configuration
+
+DJOSER = {
+    'TOKEN_MODEL':None,
+    'SERIALIZERS': {
+        'user_create': 'apps.userApp.api.serializers.userSerializers.UserCreateSerializer',
+         'current_user':'apps.userApp.api.serializers.userSerializers.CustomUserSerializer'
+    },
+
+}
+
+AUTH_COOKIE = 'access'
+AUTH_COOKIE_MAX_AGE = 60 * 60 * 24
+AUTH_COOKIE_SECURE = env('AUTH_COOKIE_SECURE', default=False)
+AUTH_COOKIE_HTTP_ONLY = True
+AUTH_COOKIE_PATH = '/'
+# En modo desarrollo tiene que tener el valor Lax, en producción None
+AUTH_COOKIE_SAMESITE = 'Lax'
 
 
 # Password validation
@@ -176,3 +194,4 @@ MEDIA_URL = f'https://{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com/'
 
 # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+AUTH_USER_MODEL = "userApp.UserAccount"

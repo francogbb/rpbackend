@@ -1,19 +1,60 @@
 from django.db import models
-from django.contrib.auth.models import User
-from ..academicApp.models import Section
+from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
+from ..academicApp.models import Section, Area
+from django.contrib.auth.models import Group
 
-# Create your models here.
+class UserAccountManager(BaseUserManager):
+    def create_user(self, email, password=None, group=None):
+        if not email:
+            raise ValueError("Los usuarios deben tener un email")
+        
+        # Normalizamos el email
+        email = self.normalize_email(email).lower()
+
+        user = self.model(
+            email=email,
+            group=group
+        )
+
+        user.set_password(password)
+
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None):
+        user = self.create_user(
+            email=email,
+            password=password,
+        )
+        user.is_staff = True
+        user.is_superuser = True
+        user.save(using=self._db)
+        return user
+
+class UserAccount(AbstractBaseUser, PermissionsMixin):
+    email = models.EmailField(
+        max_length=255,
+        unique=True,
+    )
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+    is_staff = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+
+    objects = UserAccountManager()
+
+    USERNAME_FIELD = "email"
+
+    def __str__(self):
+        return self.email
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, null=True, on_delete=models.CASCADE)
-    first_name = models.CharField(max_length=100)
-    last_name = models.CharField(max_length=100)
-    rut = models.CharField(max_length=10)
-    role = models.CharField(max_length=10)
+    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
+    first_name = models.CharField( max_length=150)
+    last_name = models.CharField( max_length=150)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, blank=True)
-    
-    def __str__(self):
-        return f"{self.user.email}" 
+    area = models.ForeignKey(Area, on_delete=models.CASCADE, null=True, blank=True)
 
 class CustomGroup(models.Model):
     group_name = models.CharField(max_length=100)
