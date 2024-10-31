@@ -22,3 +22,4 @@ from django.urls import path
 urlpatterns += [
     path('document/<int:pk>/desencriptar/', DocumentViewSet.as_view({'get': 'desencriptar_documento'})),
 ]
+

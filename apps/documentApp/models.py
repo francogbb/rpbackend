@@ -45,7 +45,7 @@ class Document(models.Model):
     entry_date = models.DateTimeField(auto_now_add=True)
     available_date = models.DateTimeField(auto_now_add=True) 
     publication_year = models.IntegerField(default=datetime.now().year)
-    author = models.ManyToManyField(CustomGroup)
+    author = models.ForeignKey(CustomGroup, on_delete=models.CASCADE)
     type_document = models.ForeignKey(TypeDocument, on_delete=models.CASCADE) 
     encryption_key = models.BinaryField(null=True, blank=True) # Guardar la llave de encriptación buscar como guardar de forma segura --------------------------------------->
     def save(self, *args, **kwargs):

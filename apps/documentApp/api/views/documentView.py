@@ -7,14 +7,14 @@ from datetime import timedelta
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import HttpResponse, HttpResponseServerError
 from cryptography.fernet import Fernet, InvalidToken
-
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     permmission_classes = [AllowAny]
-
+    parser_classes = (MultiPartParser, FormParser) # - Permite manejar archivos en la petición de manera mas segura
     @action(detail=True, methods=['get'])
     def desencriptar_documento(self, request, pk=None):
         try:
