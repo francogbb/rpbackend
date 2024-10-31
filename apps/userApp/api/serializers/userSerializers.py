@@ -40,6 +40,7 @@ class CustomUserSerializer(DjoserUserSerializer):
         try:
             profile = Profile.objects.get(user=obj)
             return {
+                "id": profile.id,
                 "first_name": profile.first_name,
                 "last_name": profile.last_name,
                 "section": profile.section.section_name if profile.section else None,
