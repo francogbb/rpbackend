@@ -17,6 +17,8 @@ class TypeDocument(models.Model):
         ]
 
     type_name = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    def __str__(self):
+        return dict(self.TYPE_CHOICES).get(self.type_name, self.type_name)
 
 
 class Document(models.Model):
@@ -48,23 +50,6 @@ class Document(models.Model):
     author = models.ForeignKey(CustomGroup, on_delete=models.CASCADE)
     type_document = models.ForeignKey(TypeDocument, on_delete=models.CASCADE) 
     encryption_key = models.BinaryField(null=True, blank=True) # Guardar la llave de encriptación buscar como guardar de forma segura --------------------------------------->
-    def save(self, *args, **kwargs):
-        if not self.encryption_key:
-            # Generar y guardar la clave de cifrado
-            self.encryption_key = Fernet.generate_key()
-        cipher = Fernet(self.encryption_key)
-
-        if self.document:
-            # Leer el contenido del archivo original
-            pdf_content = self.document.read()  # Leer el contenido
-            self.document.seek(0)  # Reiniciar el puntero del archivo
-            encrypted_content = cipher.encrypt(pdf_content)  # Cifrar el contenido
-
-            # Guardar el archivo cifrado
-            encrypted_file_name = f'encrypted_{self.document.name}'
-            self.document.save(encrypted_file_name, ContentFile(encrypted_content), save=False)
-        
-        super().save(*args, **kwargs)
     def __str__(self):
         return self.title
 

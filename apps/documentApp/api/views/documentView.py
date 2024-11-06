@@ -8,6 +8,9 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.http import HttpResponse, HttpResponseServerError
 from cryptography.fernet import Fernet, InvalidToken
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
+from django.core.files.base import ContentFile
+from rest_framework import status
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
@@ -50,3 +53,54 @@ class DocumentViewSet(viewsets.ModelViewSet):
             return HttpResponse("Error en la desencriptación. Verifique la clave.", status=400)
         except Exception as e:
             return HttpResponseServerError(f"Error al desencriptar el documento: {str(e)}")
+    def create(self, request, *args, **kwargs):
+        # Sobrescribir el método create para manejar el guardado y cifrado del documento
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        # Guarda la instancia temporalmente para obtener el objeto
+        document_instance = serializer.save()
+
+        if document_instance.document:
+            # Obtener el nombre original del archivo del request
+            original_file_name = request.FILES['document'].name
+
+            # Genera la clave de cifrado si no existe
+            if not document_instance.encryption_key:
+                document_instance.encryption_key = Fernet.generate_key()
+            cipher = Fernet(document_instance.encryption_key)
+
+            # Lee el contenido del archivo
+            with document_instance.document.open('rb') as file:
+                pdf_content = file.read()
+
+            # Cifrar el contenido
+            encrypted_content = cipher.encrypt(pdf_content)
+
+            # Eliminar el archivo original antes de guardar el encriptado
+            document_instance.document.delete(save=False)
+
+            # Guardar el archivo cifrado usando el nombre original
+            encrypted_file_name = f'encrypted_{original_file_name}'
+            document_instance.document.save(encrypted_file_name, ContentFile(encrypted_content), save=False)
+
+            # Guardar nuevamente la instancia con el archivo cifrado
+            document_instance.save()
+
+        # Devolver la respuesta de creación
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+    def update(self, request, *args, **kwargs):
+        # Si el campo `document` no está en el request, lo eliminamos de los datos validados
+        if 'document' not in request.data:
+            partial_data = request.data.copy()
+            partial_data.pop('document', None)
+            serializer = self.get_serializer(self.get_object(), data=partial_data, partial=True)
+        else:
+            serializer = self.get_serializer(self.get_object(), data=request.data, partial=True)
+        
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
