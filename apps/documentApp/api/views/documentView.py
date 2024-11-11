@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from ...models import Document,Statistics
-from ..serializers.documentSerializer import DocumentSerializer
+from ..serializers.documentSerializer import DocumentSerializer, DocumentSerializerPublic
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -104,3 +104,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+    
+class DocumentPublicViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializerPublic
+    permission_classes = [AllowAny]

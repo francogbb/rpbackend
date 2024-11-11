@@ -30,7 +30,7 @@ class UserAccountManager(BaseUserManager):
         user.is_superuser = True
         user.save(using=self._db)
         return user
-
+ 
 class UserAccount(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(
         max_length=255,
