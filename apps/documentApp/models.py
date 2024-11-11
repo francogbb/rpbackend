@@ -65,7 +65,14 @@ class Statistics(models.Model):
     
 
 class ApplicationForm(models.Model):
-    state = models.CharField(max_length=50)
+
+    STATE_FORM = [
+        ('1', 'Pendiente'),
+        ('2', 'Aprobado'),
+        ('3', 'Rechazado'),
+
+    ]
+    state = models.CharField(choices=STATE_FORM, max_length=1, default='1')
     created_at = models.DateTimeField(auto_now_add=True)
     reason = models.CharField(max_length=100)
     expiration_date = models.DateTimeField()  # Fecha de expiración ------------------------------ Cambiar settings (CL)
