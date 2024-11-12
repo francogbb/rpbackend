@@ -74,7 +74,7 @@ class ApplicationForm(models.Model):
     state = models.CharField(choices=STATE_FORM, max_length=1, default='1')
     created_at = models.DateTimeField(auto_now_add=True)
     reason = models.CharField(max_length=100, null=True, blank=True)
-    expiration_date = models.DateTimeField()  # Fecha de expiración ------------------------------ Cambiar settings (CL)
+    expiration_date = models.DateTimeField(null=True, blank=True)  # Fecha de expiración ------------------------------ Cambiar settings (CL)
     document = models.ForeignKey(Document , on_delete=models.CASCADE)  # Relación con Document
     student = models.ForeignKey(Profile, on_delete=models.CASCADE)  # Relación con Profile
     def __str__(self):
@@ -96,7 +96,6 @@ class PublishForm(models.Model):
         ('2', 'Aprobado'),
         ('3', 'Rechazado'),
     ]
-    
     state = models.CharField(max_length=1, choices=STATE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
