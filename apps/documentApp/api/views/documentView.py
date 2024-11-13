@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from ...models import Document,Statistics
-from ..serializers.documentSerializer import DocumentSerializer
+from ..serializers.documentSerializer import DocumentSerializer, DocumentSerializerPublic
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -53,6 +53,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
             return HttpResponse("Error en la desencriptación. Verifique la clave.", status=400)
         except Exception as e:
             return HttpResponseServerError(f"Error al desencriptar el documento: {str(e)}")
+    
     def create(self, request, *args, **kwargs):
         # Sobrescribir el método create para manejar el guardado y cifrado del documento
         serializer = self.get_serializer(data=request.data)
@@ -104,3 +105,22 @@ class DocumentViewSet(viewsets.ModelViewSet):
         self.perform_update(serializer)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['patch'])
+    def update_identifier(self, request, pk=None):
+        document_instance = self.get_object()
+        identifier = request.data.get('identifier')
+        
+        if not identifier:
+            return Response({"error": "El campo 'identifier' es requerido."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Actualizar solo el campo `identifier`
+        document_instance.identifier = identifier
+        document_instance.save(update_fields=['identifier'])
+        
+        return Response({"message": "Identificador actualizado correctamente."}, status=status.HTTP_200_OK)
+    
+class DocumentPublicViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializerPublic
+    permission_classes = [AllowAny]

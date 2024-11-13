@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from ...models import Document
-from apps.userApp.models import Profile
+from apps.userApp.models import Profile, CustomGroup, GroupUser
 
 class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,3 +20,45 @@ class DocumentSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
         
         
+
+class DocumentSerializerPublic(serializers.ModelSerializer):
+    author_names = serializers.SerializerMethodField()  # Campo calculado para nombres de autores
+    teacher_guide_name = serializers.SerializerMethodField()  # Campo calculado para el nombre del profesor
+
+    class Meta:
+        model = Document
+        fields = [
+            'id',
+            'title',
+            'abstract',
+            'type_access',
+            'area',
+            'academic_degree',
+            'qualification',
+            'publisher',
+            'identifier',
+            'teacher_guide',
+            'teacher_guide_name',
+            'entry_date',
+            'available_date',
+            'publication_year',
+            'author_names',  # Incluye el campo calculado en los fields
+            'type_document',
+        ]
+    
+    def get_author_names(self, obj):
+        # Filtra GroupUser por el grupo del autor (verifica que `obj.author` esté correcto)
+        group_users = GroupUser.objects.filter(group=obj.author)  
+        
+        # Extrae los nombres de los estudiantes asociados al grupo
+        return [group_user.student for group_user in group_users]  # Ajusta según los campos en `GroupUser`
+
+    def get_teacher_guide_name(self, obj):
+        # Si `teacher_guide` es un ID o nombre de perfil almacenado como texto, busca el perfil correspondiente
+        try:
+            profile = Profile.objects.get(id=obj.teacher_guide)  # Ajusta si `teacher_guide` almacena un ID
+            return f"{profile.first_name} {profile.last_name}"
+        except Profile.DoesNotExist:
+            return None  # Retorna None si no existe el perfil
+        except ValueError:
+            return obj.teacher_guide  # Si `teacher_guide` es un nombre de texto, retorna directamente el valor

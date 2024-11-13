@@ -11,4 +11,5 @@ router.register(r'profile', ProfileViewSet, basename='profile')
 router.register(r'customGroup', CustomGroupViewSet, basename='customGroup')
 router.register(r'groupUser', GroupUserViewSet, basename='groupUser')
 
+
 urlpatterns = router.urls

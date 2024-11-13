@@ -65,24 +65,21 @@ class Statistics(models.Model):
     
 
 class ApplicationForm(models.Model):
-
     STATE_FORM = [
         ('1', 'Pendiente'),
         ('2', 'Aprobado'),
         ('3', 'Rechazado'),
-
     ]
     state = models.CharField(choices=STATE_FORM, max_length=1, default='1')
     created_at = models.DateTimeField(auto_now_add=True)
-    reason = models.CharField(max_length=100)
-    expiration_date = models.DateTimeField()  # Fecha de expiración ------------------------------ Cambiar settings (CL)
+    reason = models.CharField(max_length=100, null=True, blank=True)
+    expiration_date = models.DateTimeField(null=True, blank=True)  # Fecha de expiración ------------------------------ Cambiar settings (CL)
     document = models.ForeignKey(Document , on_delete=models.CASCADE)  # Relación con Document
     student = models.ForeignKey(Profile, on_delete=models.CASCADE)  # Relación con Profile
-   
     def __str__(self):
         return f"Formulario de Solicitud hecho por {self.student.first_name} para el documento: {self.document.title}"
     
-
+    
 class Record(models.Model):
     application = models.ForeignKey(ApplicationForm, on_delete=models.CASCADE)  # Relación con Application_Form
     user = models.ForeignKey(Profile, on_delete=models.CASCADE)  # Relación con Profile
@@ -98,7 +95,6 @@ class PublishForm(models.Model):
         ('2', 'Aprobado'),
         ('3', 'Rechazado'),
     ]
-    
     state = models.CharField(max_length=1, choices=STATE_CHOICES)
     created_at = models.DateTimeField(auto_now_add=True)
     document = models.ForeignKey(Document, on_delete=models.CASCADE)
