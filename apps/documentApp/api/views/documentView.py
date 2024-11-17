@@ -2,6 +2,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from ...models import Document,Statistics
 from ..serializers.documentSerializer import DocumentSerializer, DocumentSerializerPublic
+from ..serializers.publishFormSerializer import PublishFormAcceptSerializer
 from django.utils import timezone
 from datetime import timedelta
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -11,12 +12,15 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
 from django.core.files.base import ContentFile
 from rest_framework import status
+from ...models import PublishForm
+from rest_framework.views import APIView
+
 
 
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
-    permmission_classes = [AllowAny]
+    permission_classes = [AllowAny]
     parser_classes = (MultiPartParser, FormParser) # - Permite manejar archivos en la petición de manera mas segura
     @action(detail=True, methods=['get'])
     def desencriptar_documento(self, request, pk=None):
@@ -124,3 +128,16 @@ class DocumentPublicViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializerPublic
     permission_classes = [AllowAny]
+
+""" Función que obtiene los documentos con solicitud de publicación aprobada """
+class DocumentAccept(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, *args, **kwargs):
+        # Obtiene los IDs de los documentos aprobados
+        document_ids = PublishForm.objects.filter(state=2).values_list('document', flat=True)
+
+        # Obtiene la data completa de los documentos según los ids obtenidos
+        documents = Document.objects.filter(id__in=document_ids)
+        serializer = DocumentSerializer(documents, many=True)
+        return Response(serializer.data)
