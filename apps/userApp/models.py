@@ -68,4 +68,4 @@ class GroupUser(models.Model):
     student = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.group.group_name
+        return self.group.group_name 
