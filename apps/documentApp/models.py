@@ -6,19 +6,11 @@ from cryptography.fernet import Fernet
 from django.core.files.base import ContentFile
 
 # Create your models here.
-
 class TypeDocument(models.Model):
 
-    TYPE_CHOICES = [
-            ('1', 'Proyecto de Integración'),
-            ('2', 'Seminario de Título'),
-            ('3', 'Seminario de Grado'),
-            ('4', 'Proyecto de Título'),
-        ]
-
-    type_name = models.CharField(max_length=50, choices=TYPE_CHOICES)
+    type_name = models.CharField(max_length=50)
     def __str__(self):
-        return dict(self.TYPE_CHOICES).get(self.type_name, self.type_name)
+        return self.type_name
 
 
 class Document(models.Model):
