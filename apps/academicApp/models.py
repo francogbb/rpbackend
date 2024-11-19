@@ -20,15 +20,15 @@ class Career(models.Model):
 class Signature(models.Model):
     signature_name = models.CharField(max_length=200)
     career = models.ForeignKey(Career, on_delete=models.CASCADE)
-
+    semester = models.IntegerField(null=True, blank=True) # - Quitar de que se puede dejar en blanco
+    
     def __str__(self):
         return self.signature_name
 
 
 class Section(models.Model):
     section_name = models.CharField(max_length=200)
-    semester = models.IntegerField()
-    teacher_guide = models.ForeignKey('userApp.Profile', on_delete=models.CASCADE, related_name='section_of_teacher_guide')
+    teacher_guide = models.ForeignKey('userApp.UserAccount', on_delete=models.CASCADE, related_name='section_of_teacher_guide')
     signature = models.ForeignKey(Signature, on_delete=models.CASCADE)
 
     def __str__(self):

@@ -13,6 +13,7 @@ class UserCreateSerializer(BaseUserCreateSerializer):
         fields = ['email', 'password', 'group']
 
     def create(self, validated_data):
+        
         group = validated_data.pop('group', None)  # Extraer el grupo si es entregado
         user = super().create(validated_data)  # Crea el usuario 
         if group:
@@ -48,3 +49,9 @@ class CustomUserSerializer(DjoserUserSerializer):
             }
         except Profile.DoesNotExist:
             return None
+
+
+class UserSerializerProf(serializers.ModelSerializer):
+    class Meta:
+        model = UserAccount
+        fields = ('id','email', 'password', 'group')
