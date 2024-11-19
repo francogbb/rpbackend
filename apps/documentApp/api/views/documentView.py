@@ -22,6 +22,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
     serializer_class = DocumentSerializer
     permission_classes = [AllowAny]
     parser_classes = (MultiPartParser, FormParser) # - Permite manejar archivos en la petición de manera mas segura
+    
     @action(detail=True, methods=['get'])
     def desencriptar_documento(self, request, pk=None):
         try:
