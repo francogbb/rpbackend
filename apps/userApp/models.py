@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser, PermissionsMixin
 from ..academicApp.models import Section, Area
 from django.contrib.auth.models import Group
-
+    
 class UserAccountManager(BaseUserManager):
     def create_user(self, email, password=None, group=None):
         if not email:
@@ -68,4 +68,4 @@ class GroupUser(models.Model):
     student = models.CharField(max_length=200)
 
     def __str__(self):
-        return self.group.group_name
+        return self.group.group_name 

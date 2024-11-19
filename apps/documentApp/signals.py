@@ -31,4 +31,4 @@ def create_publish_form(sender, instance, created, **kwargs):
             state='1',  # Estado 'Pendiente' como valor inicial
             document=instance,
             teacher_guide=teacher_guide_instance  # Ahora es una instancia de Profile
-        )
+        ) 
