@@ -49,8 +49,9 @@ class CustomUserSerializer(DjoserUserSerializer):
         except Profile.DoesNotExist:
             return None
 
-
+""" Obtiene todos los usuarios mostrando id, email, password y group{name} """
 class UserSerializerProf(serializers.ModelSerializer):
+    group = GroupSerializer(read_only=True)
     class Meta:
         model = UserAccount
         fields = ('id','email', 'password', 'group')
