@@ -1,24 +1,23 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Section
-from userApp.models import UserAccount
 from django.contrib.auth.models import Group
 
 @receiver(post_save, sender=Section)
 def update_teacher_group(sender, instance, created, **kwargs):
     if created:
-        # Obtener el teacher_guide relacionado
         teacher_guide = instance.teacher_guide
 
-        # Verificar el grupo actual del teacher_guide
-        if teacher_guide.group is None or teacher_guide.group.id != 2:
-            # Obtener el grupo con id 2
+        if teacher_guide:
             try:
-                group_2 = Group.objects.get(id=2)
+                # Busca el grupo "Profesor Guía" por nombre
+                group_profesor_guia = Group.objects.get(name="Profesor Guía")
             except Group.DoesNotExist:
-                print("El grupo con id 2 no existe")
+                print("El grupo 'Profesor Guía' no existe")
                 return
 
-            # Actualizar el grupo del teacher_guide
-            teacher_guide.group = group_2
-            teacher_guide.save()
+            # Actualiza el grupo si no coincide
+            if teacher_guide.group != group_profesor_guia:
+                teacher_guide.group = group_profesor_guia
+                teacher_guide.save()
+                print(f"Grupo actualizado para el usuario {teacher_guide.email}")
