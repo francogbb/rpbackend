@@ -54,8 +54,6 @@ class Profile(models.Model):
     first_name = models.CharField( max_length=150)
     last_name = models.CharField( max_length=150)
     section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, blank=True)
-    area = models.ForeignKey(Area, on_delete=models.CASCADE, null=True, blank=True)
-
 class CustomGroup(models.Model):
     group_name = models.CharField(max_length=100)
     teacher_guide = models.ForeignKey(Profile, on_delete=models.CASCADE)
