@@ -53,10 +53,38 @@ class CustomUserSerializer(DjoserUserSerializer):
 
 """ Obtiene todos los usuarios mostrando id, email, password y group{name} """
 class UserSerializerProf(serializers.ModelSerializer):
-    group = GroupSerializer(read_only=True)
+    # Usamos un CharField para recibir el nombre del grupo
+    group = serializers.CharField()
+
     class Meta:
         model = UserAccount
-        fields = ('id','email', 'password', 'group')
+        fields = ('id', 'email', 'password', 'group')
+        extra_kwargs = {
+            'password': {'write_only': True}  # Para asegurar que la contraseña no se exponga al leer el usuario
+        }
+
+    def validate_group(self, value):
+        # Valida si el grupo con el nombre proporcionado existe
+        try:
+            group = Group.objects.get(name=value)
+        except Group.DoesNotExist:
+            raise serializers.ValidationError("El grupo con este nombre no existe.")
+        return group
+
+    def create(self, validated_data):
+        # Primero, obtenemos el objeto group a partir del nombre validado
+        group = validated_data['group']
+
+        # Creamos el usuario
+        user = UserAccount.objects.create(
+            email=validated_data['email'],
+            password=validated_data['password']
+        )
+        # Asignamos el grupo al usuario
+        user.group = group
+        user.set_password(validated_data['password'])  # Encriptamos la contraseña
+        user.save()
+        return user
 
 class PasswordUpdateSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
