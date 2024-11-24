@@ -9,13 +9,15 @@ class StatisticsSerializer(serializers.ModelSerializer):
     document_academic_degree = serializers.SerializerMethodField()  # Grado académico legible
     entry_date = serializers.SerializerMethodField()
     type_access = serializers.CharField(source='document.type_access', read_only=True)  # Tipo de acceso
+    qualification = serializers.IntegerField(source='document.qualification', read_only=True)  # Calificación del documento
+    avg_qualification = serializers.FloatField(read_only=True)
 
     
     class Meta:
         model = Statistics
         fields = [
             'id', 'document', 'document_title', 'document_area', 'document_type', 
-            'document_publisher', 'document_academic_degree', 'views', 'requests', 'last_viewed', 'entry_date', 'type_access']
+            'document_publisher', 'document_academic_degree', 'views', 'requests', 'last_viewed', 'entry_date', 'type_access', 'avg_qualification', 'qualification'	]
         
         read_only_fields = ['views', 'requests', 'last_viewed']  # Evitar modificaciones manuales
 

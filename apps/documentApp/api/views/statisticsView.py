@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from django.db.models import Sum, Count
+from django.db.models import Sum, Count, Avg
 from django.shortcuts import get_object_or_404
 from django.db.models.functions import TruncDate, TruncYear
 from ...models import Statistics
@@ -140,7 +140,6 @@ class StatisticsViewSet(viewsets.ModelViewSet):
         """
         # Obtener el teacher_id desde los parámetros de consulta
         teacher_id = request.query_params.get('teacher_id')
-        print(teacher_id)
 
         if not teacher_id:
             return Response(
@@ -168,3 +167,90 @@ class StatisticsViewSet(viewsets.ModelViewSet):
             )
 
         return Response(access_type_statistics, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'], url_path='top-viewed-teacher')
+    def top_viewed_teacher(self, request):
+        """
+        Devuelve los 3 documentos más vistos por un profesor.
+        """
+        teacher_id = request.query_params.get('teacher_id')
+        
+        if not teacher_id:
+            return Response(
+                {"error": "Debe proporcionar el 'teacher_id' como parámetro."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Obtener los 10 documentos más vistos del profesor especificado
+        top_viewed_documents = (
+            Statistics.objects
+            .filter(document__teacher_guide=teacher_id)  # Filtrar por el teacher_id
+            .order_by('-views')  # Ordenar por la cantidad de vistas de mayor a menor
+        )[:3]  # Limitar a los 3 más vistos
+
+
+        # Serializar los datos de los documentos más vistos
+        serialized_top_viewed_documents = StatisticsSerializer(top_viewed_documents, many=True)
+
+        return Response(serialized_top_viewed_documents.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get'], url_path='top-qualification-teacher')
+    def top_qualification_teacher(self, request):
+        """
+        Devuelve los 4 documentos con mejor notas.
+        """
+        teacher_id = request.query_params.get('teacher_id')
+        
+        if not teacher_id:
+            return Response(
+                {"error": "Debe proporcionar el 'teacher_id' como parámetro."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Obtener los 10 documentos más vistos del profesor especificado
+        top_viewed_documents = (
+            Statistics.objects
+            .filter(document__teacher_guide=teacher_id)  # Filtrar por el teacher_id
+            .order_by('-document__qualification') 
+        )[:3]  # Limitar a los 3 más vistos
+
+
+        # Serializar los datos de los documentos más vistos
+        serialized_top_viewed_documents = StatisticsSerializer(top_viewed_documents, many=True)
+
+        return Response(serialized_top_viewed_documents.data, status=status.HTTP_200_OK)
+
+
+
+    @action(detail=False, methods=['get'], url_path='avg-qualification')
+    def avg_qualification(self, request):
+        """
+        Devuelve el promedio global de las calificaciones de los documentos de un profesor.
+        """
+        teacher_id = request.query_params.get('teacher_id')
+
+        if not teacher_id:
+            return Response(
+                {"error": "Debe proporcionar el 'teacher_id' como parámetro."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Calcular el promedio de todas las calificaciones de los documentos del profesor
+        avg_qualification_stats = (
+            Statistics.objects
+            .filter(document__teacher_guide=teacher_id)  # Filtrar por el teacher_id
+            .aggregate(
+                avg_qualification=Avg('document__qualification'),  # Promedio de todas las calificaciones
+                document = Count('document')
+            )
+        )
+
+        # Si no hay resultados, devolver un error
+        if avg_qualification_stats['avg_qualification'] is None:
+            return Response(
+                {"error": "No se encontraron calificaciones para el 'teacher_id' proporcionado."},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        return Response(avg_qualification_stats, status=status.HTTP_200_OK)
+
