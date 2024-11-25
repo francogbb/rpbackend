@@ -57,6 +57,7 @@ class Statistics(models.Model):
     
 
 class ApplicationForm(models.Model):
+    
     STATE_FORM = [
         ('1', 'Pendiente'),
         ('2', 'Aprobado'),
