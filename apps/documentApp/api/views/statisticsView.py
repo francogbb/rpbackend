@@ -254,3 +254,37 @@ class StatisticsViewSet(viewsets.ModelViewSet):
 
         return Response(avg_qualification_stats, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['get'], url_path='top-qualification-teacher')
+    def top_qualification_area(self, request):
+        """
+        Devuelve los 5 documentos con mejores calificaciones dentro de un área específica.
+        """
+        area = request.query_params.get('area')
+
+        # Validar que se proporciona el área
+        if not area:
+            return Response(
+                {"error": "Debe proporcionar el parámetro 'area'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+
+        # Consultar los documentos con mejor calificación en el área dada
+        top_documents = (
+            Statistics.objects
+            .filter(document__area_id=area)  # Filtrar por el área especificada
+            .select_related('document')  # Optimizar la carga de relaciones
+            .order_by('-document__qualification')[:5]  # Ordenar por calificación y limitar a 5
+        )
+
+        # Verificar si hay resultados
+        if not top_documents.exists():
+            return Response(
+                {"message": "No se encontraron documentos en esta área."},
+                status=status.HTTP_204_NO_CONTENT
+            )
+
+        # Serializar los datos
+        serializer = self.get_serializer(top_documents, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
