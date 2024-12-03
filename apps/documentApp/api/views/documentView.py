@@ -124,7 +124,29 @@ class DocumentViewSet(viewsets.ModelViewSet):
         document_instance.save(update_fields=['identifier'])
         
         return Response({"message": "Identificador actualizado correctamente."}, status=status.HTTP_200_OK)
-    
+
+    @action(detail=True, methods=['patch'])
+    def update_type_access(self, request, pk=None):
+        document_instance = self.get_object()
+        type_access = request.data.get('type_access')
+
+        # Convertir el valor a booleano
+        if type_access in ['true', 'false']:
+            type_access = type_access == 'true'
+        else:
+            return Response(
+                {"error": "El campo 'type_access' debe ser 'true' o 'false'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        document_instance.type_access = type_access
+        document_instance.save(update_fields=['type_access'])
+
+        return Response(
+            {"message": "Acceso actualizado correctamente."},
+            status=status.HTTP_200_OK
+        )
+        
 class DocumentPublicViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializerPublic
