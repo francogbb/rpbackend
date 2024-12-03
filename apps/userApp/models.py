@@ -16,19 +16,25 @@ class UserAccountManager(BaseUserManager):
             group=group
         )
 
-        user.set_password(password)
-
+        user.set_password(password)  # Aquí se cifra la contraseña
         user.save(using=self._db)
         return user
 
     def create_superuser(self, email, password=None):
-        user = self.create_user(
+        if not email:
+            raise ValueError("Los superusuarios deben tener un email")
+
+        # Normalizamos el email
+        email = self.normalize_email(email).lower()
+
+        user = self.model(
             email=email,
-            password=password,
+            password=password,  # Aquí asignamos la contraseña en texto plano
+            is_staff=True,
+            is_superuser=True
         )
-        user.is_staff = True
-        user.is_superuser = True
-        user.save(using=self._db)
+
+        user.save(using=self._db)  # Guardamos el usuario
         return user
  
 class UserAccount(AbstractBaseUser, PermissionsMixin):
