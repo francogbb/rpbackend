@@ -8,21 +8,21 @@ from django.core.exceptions import ValidationError
 
 """ Serializer para habilitar el grupo en la creación del usuario desde la interfaz rest_framework """
 class UserCreateSerializer(BaseUserCreateSerializer):
-    group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), required=False) # Obtiene los grupos existentes
+    group = serializers.PrimaryKeyRelatedField(queryset=Group.objects.all(), required=False)
 
     class Meta(BaseUserCreateSerializer.Meta):
         model = UserAccount
         fields = ['email', 'password', 'group']
 
     def create(self, validated_data):
-        
         group = validated_data.pop('group', None)  # Extraer el grupo si es entregado
-        user = super().create(validated_data)  # Crea el usuario 
+        # Crea el usuario directamente sin cifrar la contraseña
+        user = UserAccount.objects.create_user(**validated_data)
         if group:
             user.group = group  # Asigna el grupo al usuario
             user.save()
         return user
-
+    
 """ Serializer para acceder al atributo name """
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
