@@ -11,9 +11,6 @@ def create_user_profile(sender, instance, created, **kwargs):
 """ Cifra la contraseña para la creación de usuario en el admin """
 @receiver(pre_save, sender=UserAccount)
 def hash_password(sender, instance, **kwargs):
-    if instance.pk:  # Si el usuario ya existe
-        old_password = UserAccount.objects.get(pk=instance.pk).password
-        if instance.password != old_password:  # Verifica si la contraseña cambió
-            instance.password = make_password(instance.password)
-    else:  # Si es un usuario nuevo
+    # Solo cifra si la contraseña no está ya cifrada
+    if not instance.password.startswith("pbkdf2_sha256$"):
         instance.password = make_password(instance.password)
