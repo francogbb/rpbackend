@@ -1,8 +1,10 @@
 from rest_framework import serializers
 from ...models import Document
 from apps.userApp.models import Profile, CustomGroup, GroupUser
+from apps.documentApp.models import TypeDocument
 
 class DocumentSerializer(serializers.ModelSerializer):
+    author_names = serializers.SerializerMethodField()  # Campo calculado para nombres de autores
     class Meta:
         model = Document
         fields = '__all__'
@@ -18,12 +20,12 @@ class DocumentSerializer(serializers.ModelSerializer):
         
         # Llama al método `update` del padre con los datos restantes
         return super().update(instance, validated_data)
+    
         
-        
-
 class DocumentSerializerPublic(serializers.ModelSerializer):
     author_names = serializers.SerializerMethodField()  # Campo calculado para nombres de autores
     teacher_guide_name = serializers.SerializerMethodField()  # Campo calculado para el nombre del profesor
+    type_document_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Document
@@ -44,6 +46,7 @@ class DocumentSerializerPublic(serializers.ModelSerializer):
             'publication_year',
             'author_names',  # Incluye el campo calculado en los fields
             'type_document',
+            'type_document_name',
         ]
     
     def get_author_names(self, obj):
@@ -62,3 +65,15 @@ class DocumentSerializerPublic(serializers.ModelSerializer):
             return None  # Retorna None si no existe el perfil
         except ValueError:
             return obj.teacher_guide  # Si `teacher_guide` es un nombre de texto, retorna directamente el valor
+    
+    def get_type_document_name(self, obj):
+            """
+            Obtiene el nombre del tipo de documento.
+            """
+            try:
+                type_document = TypeDocument.objects.get(id=obj.type_document_id)  # Usa `type_document_id` si es una clave foránea
+                return type_document.type_name  # Ajusta según el nombre del campo en el modelo TypeDocument
+            except TypeDocument.DoesNotExist:
+                return None  # Si no existe el tipo de documento
+            except ValueError:
+                return obj.type_document  # Retorna directamente si no es válido
