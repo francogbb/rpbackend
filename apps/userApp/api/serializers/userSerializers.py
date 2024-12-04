@@ -55,3 +55,5 @@ class UserSerializerProf(serializers.ModelSerializer):
     class Meta:
         model = UserAccount
         fields = ('id','email', 'password', 'group')
+
+
