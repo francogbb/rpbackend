@@ -162,5 +162,5 @@ class DocumentAccept(APIView):
 
         # Obtiene la data completa de los documentos según los ids obtenidos
         documents = Document.objects.filter(id__in=document_ids)
-        serializer = DocumentSerializer(documents, many=True)
+        serializer = DocumentSerializerPublic(documents, many=True)
         return Response(serializer.data)
