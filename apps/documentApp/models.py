@@ -42,6 +42,8 @@ class Document(models.Model):
     author = models.ForeignKey(CustomGroup, on_delete=models.CASCADE)
     type_document = models.ForeignKey(TypeDocument, on_delete=models.CASCADE) 
     encryption_key = models.BinaryField(null=True, blank=True) # Guardar la llave de encriptación buscar como guardar de forma segura --------------------------------------->
+    career = models.ForeignKey('academicApp.Career', on_delete=models.CASCADE, null=True, blank=True)
+    signature = models.ForeignKey('academicApp.Signature', on_delete=models.CASCADE, null=True, blank=True)
     def __str__(self):
         return self.title
 
