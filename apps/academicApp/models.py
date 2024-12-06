@@ -22,6 +22,7 @@ class Signature(models.Model):
     signature_name = models.CharField(max_length=200)
     career = models.ForeignKey(Career, on_delete=models.CASCADE)
     semester = models.IntegerField(null=True, blank=True) # - Quitar de que se puede dejar en blanco
+    code_signature = models.CharField(max_length=200, null=True, blank=True, unique=True)
     
     def __str__(self):
         return self.signature_name
