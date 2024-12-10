@@ -3,7 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from ...models import Section
-from ..serializers.sectionSerializer import SectionSerializer
+from ..serializers.sectionSerializer import SectionSerializer, SectionUpdateSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 class SectionViewSet(viewsets.ModelViewSet):
@@ -27,4 +27,12 @@ class SectionViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+class SectionUpdateViewSet(viewsets.ModelViewSet):
+    queryset = Section.objects.all()
+    serializer_class = SectionUpdateSerializer
+    permission_classes = [IsAuthenticated]  # Asegura que solo usuarios autenticados puedan acceder
 
+    def get_queryset(self):
+        # Opcional: filtra las secciones según permisos o usuarios
+        return super().get_queryset()
