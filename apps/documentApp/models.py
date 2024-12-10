@@ -35,13 +35,16 @@ class Document(models.Model):
     document = models.FileField(upload_to='filePDF/')# Cree el campo de document para que se guarde dentro de la carpeta filePDF
     publisher = models.CharField(max_length=55, choices=PUBLISHER_CHOICES) # Datos duros: Universidad Inacap, Intituto Profesional Inacap, Centro de formacion tecnico Inacap
     identifier = models.CharField(max_length=255) # Identificador URL de documento
-    teacher_guide = models.CharField(max_length=100) # No tiene relación debido a la subida de documentos antiguos
+    teacher_guide = models.CharField(max_length=100, null=True, blank=True) # Uploader del documento ya no teacher_guide
     entry_date = models.DateTimeField(auto_now_add=True)
     available_date = models.DateTimeField(auto_now_add=True) 
     publication_year = models.IntegerField(default=datetime.now().year)
     author = models.ForeignKey(CustomGroup, on_delete=models.CASCADE)
     type_document = models.ForeignKey(TypeDocument, on_delete=models.CASCADE) 
     encryption_key = models.BinaryField(null=True, blank=True) # Guardar la llave de encriptación buscar como guardar de forma segura --------------------------------------->
+    career = models.ForeignKey('academicApp.Career', on_delete=models.CASCADE, null=True, blank=True)
+    signature = models.ForeignKey('academicApp.Signature', on_delete=models.CASCADE, null=True, blank=True)
+    teacher_name = models.CharField(max_length=100, null=True, blank=True)
     def __str__(self):
         return self.title
 

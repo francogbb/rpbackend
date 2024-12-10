@@ -67,6 +67,7 @@ class Profile(models.Model):
 class CustomGroup(models.Model):
     group_name = models.CharField(max_length=100)
     teacher_guide = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    section = models.ForeignKey(Section, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.group_name
