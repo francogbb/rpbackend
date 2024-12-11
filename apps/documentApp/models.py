@@ -27,7 +27,7 @@ class Document(models.Model):
     ]
     
     title = models.CharField(max_length=100)
-    abstract = models.CharField(max_length=300)
+    abstract = models.CharField()
     type_access = models.BooleanField(default=False) # True = Público, False = Privado
     area = models.ForeignKey(Area, on_delete=models.CASCADE)
     academic_degree = models.CharField(max_length=55, choices=DEGREE_CHOICES)

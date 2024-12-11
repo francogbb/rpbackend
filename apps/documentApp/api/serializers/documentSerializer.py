@@ -4,7 +4,6 @@ from apps.userApp.models import Profile, CustomGroup, GroupUser
 from apps.documentApp.models import TypeDocument
 
 class DocumentSerializer(serializers.ModelSerializer):
-    
     class Meta:
         model = Document
         fields = '__all__'
