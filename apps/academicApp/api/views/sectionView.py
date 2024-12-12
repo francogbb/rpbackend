@@ -3,6 +3,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 from ...models import Section
+from ....userApp.models import Profile
 from ..serializers.sectionSerializer import SectionSerializer, SectionUpdateSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
@@ -27,6 +28,32 @@ class SectionViewSet(viewsets.ModelViewSet):
         
         serializer = self.get_serializer(sections, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'], url_path='students-by-section/(?P<section_id>[^/.]+)')
+    def students_by_section(self, request, section_id=None):
+        """
+        Acción personalizada para obtener estudiantes asignados a una sección específica.
+        """
+        students = Profile.objects.filter(section_id=section_id)
+
+        if not students.exists():
+            return Response(
+                {"message": f"No se encontraron estudiantes para la sección con ID {section_id}."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Serializar los datos de los estudiantes
+        student_data = [
+            {
+                "id": student.id,
+                "first_name": student.first_name,
+                "last_name": student.last_name,
+                "email": student.user.email,
+            }
+            for student in students
+        ]
+
+        return Response(student_data, status=status.HTTP_200_OK)
     
 class SectionUpdateViewSet(viewsets.ModelViewSet):
     queryset = Section.objects.all()

@@ -46,6 +46,7 @@ class DocumentSerializerPublic(serializers.ModelSerializer):
             'author_names',  # Incluye el campo calculado en los fields
             'type_document',
             'type_document_name',
+            'teacher_name',
         ]
     
     def get_author_names(self, obj):
