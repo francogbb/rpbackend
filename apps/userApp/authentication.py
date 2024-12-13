@@ -1,6 +1,7 @@
 from django.conf import settings
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
+""" Se personaliza la autenticación con JWT con cookies """
 class CustomJWTAuthentication(JWTAuthentication):
     
     def authenticate(self, request):

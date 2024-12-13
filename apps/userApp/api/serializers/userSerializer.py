@@ -7,8 +7,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('email', 'password')  # Solo utilizamos email y password
+        fields = ('email', 'password') # Solo se utiliza email y password del modelo User
 
+    """ Se modifica el serializar para la creación de un usuario """
     def create(self, validated_data):
         user = User(
             email=validated_data['email'],
@@ -18,6 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
+    """ Valida si un email existe """
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
             raise ValidationError("Este email ya está en uso.")

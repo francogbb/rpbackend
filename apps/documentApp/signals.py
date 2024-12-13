@@ -2,9 +2,9 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import ApplicationForm, Statistics, PublishForm, Document
 from ..userApp.models import Profile, UserAccount
-from django.shortcuts import get_object_or_404
 from django.contrib.auth.models import Group
 
+""" Crea y actualiza estadística  """
 @receiver(post_save, sender=ApplicationForm)
 def create_or_update_statistics_requests(sender, instance, created, **kwargs):
     
@@ -13,17 +13,8 @@ def create_or_update_statistics_requests(sender, instance, created, **kwargs):
     if created:
         stats.requests += 1
         stats.save(update_fields=['requests'])
-        
 
-""" @receiver(post_save, sender=ApplicationForm)
-def create_or_update_statistics_views(sender, instance, created, **kwargs):
-    document = instance.document
-    stats, _ = Statistics.objects.get_or_create(document=document)
-    if created and instance.state == '2':
-        stats.views += 1
-        stats.save(update_fields=['views']) """
-        
-
+""" Cuando se crea un documento se crea un publish_form """
 @receiver(post_save, sender=Document)
 def create_publish_form(sender, instance, created, **kwargs):
     if created:
@@ -55,7 +46,7 @@ def create_publish_form(sender, instance, created, **kwargs):
         is_director = teacher_guide_user.group == group_director
         print(f"¿El usuario {teacher_guide_user.email} es Director de Carrera? {is_director}")  # Mensaje informativo
 
-        # Establece el estado inicial
+        # Establece el estado inicial según el rol de usuario
         initial_state = '2' if is_director else '1'
 
         # Crea el PublishForm con el estado inicial adecuado
@@ -64,4 +55,4 @@ def create_publish_form(sender, instance, created, **kwargs):
             document=instance,
             teacher_guide=teacher_guide_profile
         )
-        print(f"PublishForm creado con estado {initial_state} para el documento {instance.id}.")  # Mensaje informativo
+        print(f"PublishForm creado con estado {initial_state} para el documento {instance.id}.")  

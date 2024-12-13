@@ -21,25 +21,27 @@ class PublishFormSerializer(serializers.ModelSerializer):
             'area_name'
         ]
 
+    """ Obtiene el título del documento asociado al PublishForm """
     def get_document_title(self, obj):
-        # Obtiene el título del documento asociado al PublishForm
-        document = obj.document  # Obtiene el objeto Document del documento del publishform
+        document = obj.document  
         return document.title if document else None
 
+    """ Obtiene el nombre del profesor guía asociado al PublishForm """
     def get_teacher_name(self, obj):
-        # Obtiene el nombre del profesor guía asociado al PublishForm
-        teacher_guide = obj.teacher_guide  # Obtiene el objeto Profile del Teacher Guide
+        teacher_guide = obj.teacher_guide  
         return f'{teacher_guide.first_name} {teacher_guide.last_name}' if teacher_guide else None
+    
+    """ Obtiene el área asociada al documento del PublishForm """
     def get_area(self, obj):
-        # Obtiene el área asociada al documento del PublishForm
-        document = obj.document  # Obtiene el objeto Document relacionado con el PublishForm
-        area = document.area if document else None  # Accede al área del documento
+        document = obj.document  
+        area = document.area if document else None  
         return area.id 
+    
+    """ Obtiene el nombre del área asociada al documento del PublishForm """
     def get_area_name(self, obj):
-        # Obtiene el área asociada al documento del PublishForm
-        document = obj.document  # Obtiene el objeto Document relacionado con el PublishForm
-        area = document.area if document else None  # Accede al área del documento
-        return area.area_name  # Asumiendo que el área tiene un campo `name`
+        document = obj.document  
+        area = document.area if document else None  
+        return area.area_name  
 
 
 class PublishFormAcceptSerializer(serializers.ModelSerializer):

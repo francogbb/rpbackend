@@ -7,7 +7,7 @@ class AreaSerializer(serializers.ModelSerializer):
         model = Area
         fields = '__all__'
         
-
+""" Serializer creado para mostrar el email del director a cargo del área """
 class AreaSerializerModField(serializers.ModelSerializer):
     # Campo personalizado para mostrar el email del director
     director_email = serializers.EmailField(source='director.email', read_only=True)

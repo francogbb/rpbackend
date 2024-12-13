@@ -3,6 +3,7 @@ from django.dispatch import receiver
 from .models import Section
 from django.contrib.auth.models import Group
 
+""" Cambia el rol de profesor a profesor guía cuando se asigna un profesor a una sección """
 @receiver(post_save, sender=Section)
 def update_teacher_group(sender, instance, created, **kwargs):
     if created:

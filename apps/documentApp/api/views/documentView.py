@@ -16,13 +16,14 @@ from ...models import PublishForm
 from rest_framework.views import APIView
 
 
-
+""" Actualiza campos y desencripta el documento para su visualización"""
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     permission_classes = [AllowAny]
-    parser_classes = (MultiPartParser, FormParser) # - Permite manejar archivos en la petición de manera mas segura
+    parser_classes = (MultiPartParser, FormParser) 
     
+    """ Desencripta el documento y actualiza las estadísticas """
     @action(detail=True, methods=['get'])
     def desencriptar_documento(self, request, pk=None):
         try:
@@ -32,8 +33,10 @@ class DocumentViewSet(viewsets.ModelViewSet):
                 return HttpResponse("Archivo no encontrado", status=404)
 
             clave_encriptacion = documento.encryption_key
+
             if isinstance(clave_encriptacion, str):
                 clave_encriptacion = clave_encriptacion.encode()  
+
             cipher_suite = Fernet(clave_encriptacion)
 
             with documento.document.open('rb') as f:
@@ -46,6 +49,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
            # Obtiene el modelo de statics de views y despues crea la estadistica 
             stats, created = Statistics.objects.get_or_create(document=documento)
+            
             # Ve el tiempo real o la ultima vez que se vio el documento y si es mayor a 5 seg se suma una vista
             if not stats.last_viewed or timezone.now() - stats.last_viewed > timedelta(seconds=5):
                 stats.views += 1
@@ -59,8 +63,8 @@ class DocumentViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return HttpResponseServerError(f"Error al desencriptar el documento: {str(e)}")
     
+    """ Sobrescribir el método create para manejar el guardado y cifrado del documento """
     def create(self, request, *args, **kwargs):
-        # Sobrescribir el método create para manejar el guardado y cifrado del documento
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
@@ -97,8 +101,9 @@ class DocumentViewSet(viewsets.ModelViewSet):
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
+    """ Actualiza los campos excluyendo a document """
     def update(self, request, *args, **kwargs):
-        # Si el campo `document` no está en el request, lo eliminamos de los datos validados
+        # Si el campo `document` no está en el request, se elimina de los datos validados
         if 'document' not in request.data:
             partial_data = request.data.copy()
             partial_data.pop('document', None)
@@ -111,6 +116,7 @@ class DocumentViewSet(viewsets.ModelViewSet):
 
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+    """ Actualiza solo el campo identifier """
     @action(detail=True, methods=['patch'])
     def update_identifier(self, request, pk=None):
         document_instance = self.get_object()
@@ -119,18 +125,17 @@ class DocumentViewSet(viewsets.ModelViewSet):
         if not identifier:
             return Response({"error": "El campo 'identifier' es requerido."}, status=status.HTTP_400_BAD_REQUEST)
         
-        # Actualizar solo el campo `identifier`
         document_instance.identifier = identifier
         document_instance.save(update_fields=['identifier'])
         
         return Response({"message": "Identificador actualizado correctamente."}, status=status.HTTP_200_OK)
 
+    """ Actualiza solo el campo type_acccess """
     @action(detail=True, methods=['patch'])
     def update_type_access(self, request, pk=None):
         document_instance = self.get_object()
         type_access = request.data.get('type_access')
 
-        # Convertir el valor a booleano
         if type_access in ['true', 'false']:
             type_access = type_access == 'true'
         else:
@@ -147,12 +152,13 @@ class DocumentViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
         
+""" Obtener campos de los documentos """
 class DocumentPublicViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializerPublic
     permission_classes = [AllowAny]
 
-""" Función que obtiene los documentos con solicitud de publicación aprobada """
+""" Otiene los documentos con solicitud de publicación aprobada """
 class DocumentAccept(APIView):
     permission_classes = [AllowAny]
 

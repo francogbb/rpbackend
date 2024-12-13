@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models.functions import TruncDate, TruncYear
 from ...models import Statistics
 from ..serializers.statisticsSerializer import StatisticsSerializer
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
 class StatisticsViewSet(viewsets.ModelViewSet):
@@ -15,35 +15,27 @@ class StatisticsViewSet(viewsets.ModelViewSet):
     """
     queryset = Statistics.objects.all()
     serializer_class = StatisticsSerializer
-    permission_classes = [AllowAny]  # Permitir acceso público
+    permission_classes = [IsAuthenticated]  
 
-    # -------------------
-    # Endpoints Personalizados
-    # -------------------
-
+    """ Devuelve los 5 documentos más vistos """
     @action(detail=False, methods=['get'], url_path='most-viewed')
     def most_viewed(self, request):
-        """
-        Devuelve los 5 documentos más vistos.
-        """
         most_viewed = Statistics.objects.order_by('-views')[:5]
         serializer = self.get_serializer(most_viewed, many=True)
         return Response(serializer.data)
 
+    """ Devuelve los 10 documentos más solicitados """
     @action(detail=False, methods=['get'], url_path='most-requested')
     def most_requested(self, request):
-        """
-        Devuelve los 10 documentos más solicitados.
-        """
+
         most_requested = Statistics.objects.order_by('-requests')[:5]
         serializer = self.get_serializer(most_requested, many=True)
         return Response(serializer.data)
 
+    """ Devuelve estadísticas agrupadas por publicador """
     @action(detail=False, methods=['get'], url_path='by-publisher')
     def by_publisher(self, request):
-        """
-        Devuelve estadísticas agrupadas por publicador.
-        """
+
         statistics = (
             Statistics.objects
             .values('document__publisher')
@@ -55,11 +47,10 @@ class StatisticsViewSet(viewsets.ModelViewSet):
         )
         return Response(statistics)
 
+    """ Devuelve estadísticas agrupadas por tipo de documento """
     @action(detail=False, methods=['get'], url_path='by-type-document')
     def by_type_document(self, request):
-        """
-        Devuelve estadísticas agrupadas por tipo de documento.
-        """
+        
         statistics = (
             Statistics.objects
             .values('document__type_document__type_name')
@@ -71,11 +62,10 @@ class StatisticsViewSet(viewsets.ModelViewSet):
         )
         return Response(statistics)
 
+    """ Devuelve estadísticas agrupadas por área."""
     @action(detail=False, methods=['get'], url_path='by-area')
     def by_area(self, request):
-        """
-        Devuelve estadísticas agrupadas por área.
-        """
+
         statistics = (
             Statistics.objects
             .values('document__area__area_name')  # Cambiar 'name' a 'area_name'
@@ -88,33 +78,25 @@ class StatisticsViewSet(viewsets.ModelViewSet):
         )
         return Response(statistics)
 
-
+    """ Lista todas las estadísticas """
     @action(detail=False, methods=['get'], url_path='all-statistics')
     def list_statistics(self, request):
-        """
-        Lista todas las estadísticas.
-        """
+
         statistics = self.get_queryset()
         serializer = self.get_serializer(statistics, many=True)
         return Response(serializer.data)
 
-    # -------------------
-    # Métodos Predeterminados
-    # -------------------
-
+    """ Devuelve una estadística específica por ID """
     def retrieve(self, request, pk=None):
-        """
-        Devuelve una estadística específica por ID.
-        """
+
         statistics = get_object_or_404(self.get_queryset(), pk=pk)
         serializer = self.get_serializer(statistics)
         return Response(serializer.data)
     
+    """ Devuelve estadísticas agrupadas por año de subida (entry_date del documento relacionado) """
     @action(detail=False, methods=['get'], url_path='by-date-uploads')
     def by_date_uploads(self, request):
-        """
-        Devuelve estadísticas agrupadas por año de subida (entry_date del documento relacionado).
-        """
+
         statistics = (
             Statistics.objects
             .annotate(upload_year=TruncYear('document__entry_date'))  # Agrupar por año
@@ -131,13 +113,10 @@ class StatisticsViewSet(viewsets.ModelViewSet):
 
         return Response(statistics)
     
-
+    """ Devuelve las estadísticas de documentos vinculados a un profesor, agrupados por tipo de acceso (público o privado), usando 'teacher_guide' ID """
     @action(detail=False, methods=['get'], url_path='by-access-type-teacher')
     def by_access_type_teacher(self, request):
-        """
-        Devuelve las estadísticas de documentos vinculados a un profesor,
-        agrupados por tipo de acceso (público o privado), usando 'teacher_guide' ID.
-        """
+
         # Obtener el teacher_id desde los parámetros de consulta
         teacher_id = request.query_params.get('teacher_id')
 
@@ -168,11 +147,10 @@ class StatisticsViewSet(viewsets.ModelViewSet):
 
         return Response(access_type_statistics, status=status.HTTP_200_OK)
     
+    """ Devuelve los 3 documentos más vistos por un profesor """
     @action(detail=False, methods=['get'], url_path='top-viewed-teacher')
     def top_viewed_teacher(self, request):
-        """
-        Devuelve los 3 documentos más vistos por un profesor.
-        """
+
         teacher_id = request.query_params.get('teacher_id')
         
         if not teacher_id:
@@ -193,12 +171,11 @@ class StatisticsViewSet(viewsets.ModelViewSet):
         serialized_top_viewed_documents = StatisticsSerializer(top_viewed_documents, many=True)
 
         return Response(serialized_top_viewed_documents.data, status=status.HTTP_200_OK)
-
+        
+    """ Devuelve los 4 documentos con mejor notas """
     @action(detail=False, methods=['get'], url_path='top-qualification-teacher')
     def top_qualification_teacher(self, request):
-        """
-        Devuelve los 4 documentos con mejor notas.
-        """
+
         teacher_id = request.query_params.get('teacher_id')
         
         if not teacher_id:
@@ -220,13 +197,10 @@ class StatisticsViewSet(viewsets.ModelViewSet):
 
         return Response(serialized_top_viewed_documents.data, status=status.HTTP_200_OK)
 
-
-
+    """ Devuelve el promedio global de las calificaciones de los documentos de un profesor """
     @action(detail=False, methods=['get'], url_path='avg-qualification')
     def avg_qualification(self, request):
-        """
-        Devuelve el promedio global de las calificaciones de los documentos de un profesor.
-        """
+
         teacher_id = request.query_params.get('teacher_id')
 
         if not teacher_id:
@@ -254,11 +228,10 @@ class StatisticsViewSet(viewsets.ModelViewSet):
 
         return Response(avg_qualification_stats, status=status.HTTP_200_OK)
 
+    """ Devuelve los 5 documentos con mejores calificaciones dentro de un área específica """
     @action(detail=False, methods=['get'], url_path='top-qualification-area')
     def top_qualification_area(self, request):
-        """
-        Devuelve los 5 documentos con mejores calificaciones dentro de un área específica.
-        """
+
         area = request.query_params.get('area')
 
         # Validar que se proporciona el área
