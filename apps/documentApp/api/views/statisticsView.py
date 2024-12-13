@@ -24,7 +24,7 @@ class StatisticsViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'], url_path='most-viewed')
     def most_viewed(self, request):
         """
-        Devuelve los 10 documentos más vistos.
+        Devuelve los 5 documentos más vistos.
         """
         most_viewed = Statistics.objects.order_by('-views')[:5]
         serializer = self.get_serializer(most_viewed, many=True)
@@ -254,7 +254,7 @@ class StatisticsViewSet(viewsets.ModelViewSet):
 
         return Response(avg_qualification_stats, status=status.HTTP_200_OK)
 
-    @action(detail=False, methods=['get'], url_path='top-qualification-teacher')
+    @action(detail=False, methods=['get'], url_path='top-qualification-area')
     def top_qualification_area(self, request):
         """
         Devuelve los 5 documentos con mejores calificaciones dentro de un área específica.
@@ -288,3 +288,4 @@ class StatisticsViewSet(viewsets.ModelViewSet):
         serializer = self.get_serializer(top_documents, many=True)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+    

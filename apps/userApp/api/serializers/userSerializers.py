@@ -98,6 +98,7 @@ class UserSerializerCustomRegister(serializers.ModelSerializer):
 
         return user
 
+
 class PasswordUpdateSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
@@ -109,3 +110,4 @@ class PasswordUpdateSerializer(serializers.Serializer):
             validate_password(value)
         except ValidationError as e:
             raise serializers.ValidationError(e.messages)
+        return value
