@@ -1,5 +1,5 @@
 from ..serializers.userSerializers import UserCreateSerializer, UserSerializerProf, UserSerializerCustomRegister, PasswordUpdateSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, IsAuthenticated
 from ...models import UserAccount
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -10,24 +10,25 @@ from rest_framework.decorators import action
 class CustomUserView(viewsets.ModelViewSet):
     queryset = UserAccount.objects.all()
     serializer_class = UserCreateSerializer
-    permission_classes = [ AllowAny ]
+    permission_classes = [ IsAuthenticated ]
     
     
 class CustomUserProfView(viewsets.ModelViewSet):
     queryset = UserAccount.objects.all()
     serializer_class = UserSerializerProf
-    permission_classes = [ AllowAny ]
+    permission_classes = [ IsAuthenticated ]
 
 
 class CustomUserRegisterEditView(viewsets.ModelViewSet):
     queryset = UserAccount.objects.all()
     serializer_class = UserSerializerCustomRegister
-    permission_classes = [ AllowAny ]
+    permission_classes = [ IsAuthenticated ]
     
     
 class PasswordUpdateView(viewsets.ViewSet):
     permission_classes = [IsAuthenticated]
 
+    """ Función que permite la actualización de la contraseña """
     @action(detail=False, methods=["put"], url_path="change-password")
     def change_password(self, request):
         print("Request data:", request.data)  # Depura los datos recibidos

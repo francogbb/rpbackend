@@ -18,12 +18,12 @@ class ApplicationFormSerializer(serializers.ModelSerializer):
             'student_name',
         ]
     
+    """ Obtiene el título del documento asociado al ApplicationForm """
     def get_document_title(self, obj):
-        # Obtiene el título del documento asociado al ApplicationForm
-        document = obj.document  # Obtiene el objeto Document del documento del ApplicationForm
+        document = obj.document  
         return document.title if document else None
 
+    """ Obtiene el nombre del profesor guía asociado al PublishForm """
     def get_student_name(self, obj):
-        # Obtiene el nombre del profesor guía asociado al PublishForm
-        student = obj.student  # Obtiene el objeto Profile del Estudiante
+        student = obj.student  
         return f'{student.first_name} {student.last_name}' if student else None

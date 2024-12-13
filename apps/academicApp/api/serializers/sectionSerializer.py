@@ -8,12 +8,12 @@ class SectionSerializer(serializers.ModelSerializer):
         model = Section
         fields = '__all__'
 
-""" Actualiza el rol del usuario cuándo se edita una sección """
 class SectionUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Section
         fields = ['id', 'section_name', 'teacher_guide', 'signature']
 
+    """ Realiza la actualización de asignación de un profesor guía a una sección """
     def update(self, instance, validated_data):
         new_teacher_guide = validated_data.get('teacher_guide', None)
         old_teacher_guide = instance.teacher_guide
@@ -27,9 +27,9 @@ class SectionUpdateSerializer(serializers.ModelSerializer):
                 "Grupos 'Profesor' o 'Profesor Guía' no existen en el sistema."
             )
 
-        # Se configura el profesor anterior 
+        # Se configura el profesor anterior para eliminar su rol de profesor guía si no tiene más secciones asignadas
         if old_teacher_guide and old_teacher_guide != new_teacher_guide:
-            # Verificar si el profesor anterior no tiene más secciones asignadas
+            # Verifica si el profesor anterior no tiene más secciones asignadas
             if not Section.objects.filter(teacher_guide=old_teacher_guide).exclude(id=instance.id).exists():
                 print(f"El profesor anterior {old_teacher_guide} no tiene más secciones. Cambiando al grupo 'Profesor'.")
                 old_teacher_guide.group = group_profesor

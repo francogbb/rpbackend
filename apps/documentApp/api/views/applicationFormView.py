@@ -27,7 +27,7 @@ class ApplicationFormViewSet(viewsets.ModelViewSet):
             application_instance.state = state
         if expiration_date:
             try:
-                application_instance.expiration_date = expiration_date  # Asegúrate de que el formato sea compatible
+                application_instance.expiration_date = expiration_date  
             except ValueError:
                 return Response({"error": "Formato de fecha inválido."}, status=status.HTTP_400_BAD_REQUEST)
         
@@ -45,7 +45,6 @@ class ApplicationFormViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Filtrar por `document_id`, `student_id`, `state` pendiente
             application_form = ApplicationForm.objects.get(
                 document_id=document_id,
                 student_id=student_id,
@@ -69,7 +68,6 @@ class ApplicationFormViewSet(viewsets.ModelViewSet):
                             status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Filtrar por `document_id`, `student_id` y `expiration_date` mayor a la fecha actual
             application_form = ApplicationForm.objects.get(
                 document_id=document_id,
                 student_id=student_id,

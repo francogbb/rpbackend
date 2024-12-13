@@ -14,22 +14,24 @@ class UserCreateSerializer(BaseUserCreateSerializer):
         model = UserAccount
         fields = ['email', 'password', 'group']
 
+    """ Creación de usuario a través del admin """
     def create(self, validated_data):
         group = validated_data.pop('group', None)  # Extraer el grupo si es entregado
-        # Crea el usuario directamente sin cifrar la contraseña
+
+        # Crea el usuario directamente sin cifrar la contraseña (se cifra en otro lugar)
         user = UserAccount.objects.create_user(**validated_data)
         if group:
             user.group = group  # Asigna el grupo al usuario
             user.save()
         return user
     
-""" Serializer para acceder al atributo name """
+""" Serializer para acceder al atributo name de los grupos (roles) """
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ['id','name']
 
-""" Serializer para que modifica la información obtenida desde la consulta de la url user/me """
+""" Serializer que modifica la información obtenida desde la consulta de la url user/me """
 class CustomUserSerializer(DjoserUserSerializer):
     group = GroupSerializer(read_only=True)  # Se incluye el grupo al que pertenece el usuario
     profile = serializers.SerializerMethodField()  # Se incluye datos adicionales si es necesario
@@ -38,8 +40,8 @@ class CustomUserSerializer(DjoserUserSerializer):
         model = UserAccount
         fields = DjoserUserSerializer.Meta.fields + ('group', 'profile')
 
+    """ Verifica si el usuario tiene un perfil y retorna la data """
     def get_profile(self, obj):
-        # Verifica si el usuario tiene un perfil y retorna su información
         try:
             profile = Profile.objects.get(user=obj)
             return {
@@ -58,6 +60,7 @@ class UserSerializerProf(serializers.ModelSerializer):
         model = UserAccount
         fields = ('id','email', 'password', 'group')
 
+""" Crea usuarios y valida si existe un grupo """
 class UserSerializerCustomRegister(serializers.ModelSerializer):
     group = serializers.CharField()
 
@@ -68,17 +71,18 @@ class UserSerializerCustomRegister(serializers.ModelSerializer):
             'password': {'write_only': True}  # Para asegurar que la contraseña no se exponga al leer el usuario
         }
 
+    """ Valida si existe un grupo a través del nombre proporcionado """
     def validate_group(self, value):
-        # Valida si el grupo con el nombre proporcionado existe
         print('Valor recibido en validate_group:', value)
         try:
-            group = Group.objects.get(name=value)  # Verificamos que el grupo existe
+            group = Group.objects.get(name=value)  # Verifica que el grupo existe
         except Group.DoesNotExist:
             raise serializers.ValidationError("El grupo con este nombre no existe.")
-        return group.name  # Devolvemos el nombre del grupo para mantener consistencia
+        return group.name 
 
+    """ Creación de usuario a través del sistema """
     def create(self, validated_data):
-        group_name = validated_data.pop('group')  # Extraemos el nombre del grupo
+        group_name = validated_data.pop('group')  
 
         try:
             # Verificar si el grupo existe
@@ -90,7 +94,7 @@ class UserSerializerCustomRegister(serializers.ModelSerializer):
         # Crear el usuario con el grupo asignado
         user = UserAccount.objects.create(
             email=validated_data['email'],
-            group=group,  # Asignamos directamente el grupo
+            group=group,  # Se asigna directamente el grupo
         )
         user.set_password(validated_data['password'])  # Encriptar contraseña
         print(user)
@@ -98,14 +102,12 @@ class UserSerializerCustomRegister(serializers.ModelSerializer):
 
         return user
 
-
+""" Actualización de la Password """
 class PasswordUpdateSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
+    """ Valida la contraseña utilizando las reglas configuradas en Django """
     def validate_password(self, value):
-        """
-        Valida la contraseña utilizando las reglas configuradas en Django.
-        """
         try:
             validate_password(value)
         except ValidationError as e:

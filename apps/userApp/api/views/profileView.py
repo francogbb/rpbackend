@@ -11,9 +11,9 @@ from rest_framework.exceptions import ValidationError
 class ProfileViewSet(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
-    """ Actualiza el perfil """
+    """ Actualiza el perfil (Sirve para la creación de un usuario y modificar el profilo creado con el signal) """
     @action(detail=True, methods=['patch'])
     def update_section(self, request, pk=None):
         profile_instance = self.get_object()

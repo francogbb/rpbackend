@@ -7,23 +7,22 @@ class DocumentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Document
         fields = '__all__'
+
+    """ Verifica si el método es POST (creación) """
     def validate(self, data):
-        # Verifica si el método es POST (creación)
         if self.instance is None and 'document' not in data:
             raise serializers.ValidationError({"document": "El campo 'document' es obligatorio al crear el documento."})
         return data
 
     def update(self, instance, validated_data):
-        # Excluye el campo `document` de los datos validados si está presente
         validated_data.pop('document', None)
-        
-        # Llama al método `update` del padre con los datos restantes
+
         return super().update(instance, validated_data)
     
         
 class DocumentSerializerPublic(serializers.ModelSerializer):
-    author_names = serializers.SerializerMethodField()  # Campo calculado para nombres de autores
-    teacher_guide_name = serializers.SerializerMethodField()  # Campo calculado para el nombre del profesor
+    author_names = serializers.SerializerMethodField()  
+    teacher_guide_name = serializers.SerializerMethodField()  
     type_document_name = serializers.SerializerMethodField()
 
     class Meta:
@@ -43,37 +42,35 @@ class DocumentSerializerPublic(serializers.ModelSerializer):
             'entry_date',
             'available_date',
             'publication_year',
-            'author_names',  # Incluye el campo calculado en los fields
+            'author_names',
             'type_document',
             'type_document_name',
             'teacher_name',
         ]
     
+    """ Entrega los nombres de los autores """
     def get_author_names(self, obj):
-        # Filtra GroupUser por el grupo del autor (verifica que `obj.author` esté correcto)
         group_users = GroupUser.objects.filter(group=obj.author)  
         
-        # Extrae los nombres de los estudiantes asociados al grupo
-        return [group_user.student for group_user in group_users]  # Ajusta según los campos en `GroupUser`
+        return [group_user.student for group_user in group_users]  
 
+    """ Entrega el nombre del profesor guía """
     def get_teacher_guide_name(self, obj):
-        # Si `teacher_guide` es un ID o nombre de perfil almacenado como texto, busca el perfil correspondiente
         try:
-            profile = Profile.objects.get(id=obj.teacher_guide)  # Ajusta si `teacher_guide` almacena un ID
+            profile = Profile.objects.get(id=obj.teacher_guide)  
             return f"{profile.first_name} {profile.last_name}"
         except Profile.DoesNotExist:
-            return None  # Retorna None si no existe el perfil
+            return None  
         except ValueError:
-            return obj.teacher_guide  # Si `teacher_guide` es un nombre de texto, retorna directamente el valor
+            return obj.teacher_guide  
     
-    def get_type_document_name(self, obj):
-            """
-            Obtiene el nombre del tipo de documento.
-            """
+    """ Entrega el nombre del tipo de documento """
+    def get_type_document_name(self, obj): 
+            
             try:
-                type_document = TypeDocument.objects.get(id=obj.type_document_id)  # Usa `type_document_id` si es una clave foránea
-                return type_document.type_name  # Ajusta según el nombre del campo en el modelo TypeDocument
+                type_document = TypeDocument.objects.get(id=obj.type_document_id)  
+                return type_document.type_name  
             except TypeDocument.DoesNotExist:
-                return None  # Si no existe el tipo de documento
+                return None  
             except ValueError:
-                return obj.type_document  # Retorna directamente si no es válido
+                return obj.type_document  
