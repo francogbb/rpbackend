@@ -6,5 +6,5 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 class CustomGroupViewSet(viewsets.ModelViewSet):
     queryset = CustomGroup.objects.all()
     serializer_class = CustomGroupSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
  
