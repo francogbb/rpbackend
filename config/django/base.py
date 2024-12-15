@@ -28,8 +28,12 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DJANGO_DEBUG', default = True)
 
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:1337',  # Incluye tu servidor Nginx
+    'http://localhost:3000',  # Frontend si aplicable
+]
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 #CONFIGURATION JSON WEB TOKENS
 REST_FRAMEWORK = {
@@ -140,7 +144,7 @@ AUTH_COOKIE_SECURE = env('AUTH_COOKIE_SECURE', default=False)
 AUTH_COOKIE_HTTP_ONLY = True
 AUTH_COOKIE_PATH = '/'
 # En modo desarrollo tiene que tener el valor Lax, en producción None
-AUTH_COOKIE_SAMESITE = 'Lax'
+AUTH_COOKIE_SAMESITE = 'None'
 
 
 # Password validation
@@ -177,7 +181,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = '/app/staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
