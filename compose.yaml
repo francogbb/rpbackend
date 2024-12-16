@@ -1,0 +1,50 @@
+
+
+services:
+  server:
+    build:
+      context: .
+    expose:
+      - 8000
+    env_file:
+      - ./.env
+    volumes:
+      - static-data:/app/staticfiles  # Volumen para archivos estáticos
+      - media-data:/app/media    
+      
+
+  db:
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=rprojectsdb
+      - POSTGRES_PASSWORD=ADMIN
+    expose:
+      - 5432
+    healthcheck:
+      test: [ "CMD", "pg_isready" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  nginx:
+    build: ./nginx
+    ports:
+      - 1337:80
+    depends_on:
+      - server
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf  # Asegúrate de que la ruta sea correcta
+      - static-data:/app/staticfiles  # Montar el volumen de estáticos
+      - media-data:/app/media         # Montar el volumen de multimedia
+
+
+volumes:
+  postgres_data:
+  static-data:  # Declaración del volumen
+  media-data:   # Declaración del volumen
+  
