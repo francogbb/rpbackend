@@ -9,7 +9,7 @@ from rest_framework import status
 class PublishFormViewSet(viewsets.ModelViewSet):
     queryset = PublishForm.objects.all()
     serializer_class = PublishFormSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     """Actualiza solo el estado del PublishForm """
     @action(detail=True, methods=['patch'])

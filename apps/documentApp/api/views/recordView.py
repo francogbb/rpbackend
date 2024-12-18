@@ -6,4 +6,4 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 class RecordViewSet(viewsets.ModelViewSet):
     queryset = Record.objects.all()
     serializer_class = RecordSerializer
-    permmission_classes = [AllowAny]
+    permmission_classes = [IsAuthenticated]

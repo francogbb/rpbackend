@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from apps.academicApp.models import Area, Career, Signature
 from ...models import Document
 from apps.userApp.models import Profile, CustomGroup, GroupUser
 from apps.documentApp.models import TypeDocument
@@ -21,7 +23,10 @@ class DocumentSerializer(serializers.ModelSerializer):
     
         
 class DocumentSerializerPublic(serializers.ModelSerializer):
-    author_names = serializers.SerializerMethodField()  
+    author_names = serializers.SerializerMethodField()
+    area_name = serializers.SerializerMethodField()
+    career_name = serializers.SerializerMethodField()
+    signature_name = serializers.SerializerMethodField()      
     teacher_guide_name = serializers.SerializerMethodField()  
     type_document_name = serializers.SerializerMethodField()
 
@@ -46,6 +51,9 @@ class DocumentSerializerPublic(serializers.ModelSerializer):
             'type_document',
             'type_document_name',
             'teacher_name',
+            'area_name',
+            'career_name',
+            'signature_name',
         ]
     
     """ Entrega los nombres de los autores """
@@ -74,3 +82,37 @@ class DocumentSerializerPublic(serializers.ModelSerializer):
                 return None  
             except ValueError:
                 return obj.type_document  
+            
+    """ Entrega el nombre de la área"""
+    def get_area_name(self, obj): 
+            
+            try:
+                area = Area.objects.get(id=obj.area_id)  
+                return area.area_name  
+            except TypeDocument.DoesNotExist:
+                return None  
+            except ValueError:
+                return obj.area  
+
+    """ Entrega el nombre de la carrera"""
+    def get_career_name(self, obj): 
+            
+            try:
+                career = Career.objects.get(id=obj.career_id)  
+                return career.career_name  
+            except TypeDocument.DoesNotExist:
+                return None  
+            except ValueError:
+                return obj.career  
+
+    """ Entrega el nombre de la asignatura"""
+    def get_signature_name(self, obj): 
+            
+            try:
+                signature = Signature.objects.get(id=obj.signature_id)  
+                return signature.signature_name  
+            except TypeDocument.DoesNotExist:
+                return None  
+            except ValueError:
+                return obj.signature  
+        

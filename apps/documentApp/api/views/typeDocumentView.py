@@ -6,4 +6,4 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 class TypeDocumentViewSet(viewsets.ModelViewSet):
     queryset = TypeDocument.objects.all()
     serializer_class = TypeDocumentSerializer
-    permmission_classes = [AllowAny]
+    permmission_classes = [IsAuthenticated]

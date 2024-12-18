@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from ...models import GroupUser
 from ..serializers.groupUserSerializer import GroupUserSerializer
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 
 class GroupUserViewSet(viewsets.ModelViewSet):
     queryset = GroupUser.objects.all()

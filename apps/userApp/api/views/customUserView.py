@@ -1,5 +1,5 @@
 from ..serializers.userSerializers import UserCreateSerializer, UserSerializerProf, UserSerializerCustomRegister, PasswordUpdateSerializer
-from rest_framework.permissions import IsAuthenticated, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from ...models import UserAccount
 from rest_framework import viewsets
 from rest_framework.response import Response

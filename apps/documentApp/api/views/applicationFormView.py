@@ -10,7 +10,7 @@ from django.utils.timezone import now
 class ApplicationFormViewSet(viewsets.ModelViewSet):
     queryset = ApplicationForm.objects.all()
     serializer_class = ApplicationFormSerializer
-    permmission_classes = [AllowAny]
+    permmission_classes = [IsAuthenticated]
 
     """ Actualiza el estado y se asigna la fecha de expiración """
     @action(detail=True, methods=['patch'])

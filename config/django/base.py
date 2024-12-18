@@ -29,9 +29,9 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = env('DJANGO_DEBUG', default = True)
 
 CSRF_TRUSTED_ORIGINS = [
-    'http://localhost:1337',  # Incluye tu servidor Nginx
-    'http://localhost:3000',  # Frontend si aplicable
-]
+    'http://localhost:1337',  
+    'http://localhost:3000',  
+] 
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
@@ -144,7 +144,7 @@ AUTH_COOKIE_SECURE = env('AUTH_COOKIE_SECURE', default=False)
 AUTH_COOKIE_HTTP_ONLY = True
 AUTH_COOKIE_PATH = '/'
 # En modo desarrollo tiene que tener el valor Lax, en producción None
-AUTH_COOKIE_SAMESITE = 'None'
+AUTH_COOKIE_SAMESITE = 'Lax'
 
 
 # Password validation

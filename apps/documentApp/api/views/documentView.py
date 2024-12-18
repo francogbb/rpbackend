@@ -5,7 +5,7 @@ from ..serializers.documentSerializer import DocumentSerializer, DocumentSeriali
 from ..serializers.publishFormSerializer import PublishFormAcceptSerializer
 from django.utils import timezone
 from datetime import timedelta
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated
 from django.http import HttpResponse, HttpResponseServerError
 from cryptography.fernet import Fernet, InvalidToken
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -20,7 +20,7 @@ from rest_framework.views import APIView
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
     parser_classes = (MultiPartParser, FormParser) 
     
     """ Desencripta el documento y actualiza las estadísticas """
@@ -156,11 +156,11 @@ class DocumentViewSet(viewsets.ModelViewSet):
 class DocumentPublicViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializerPublic
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
 """ Otiene los documentos con solicitud de publicación aprobada """
 class DocumentAccept(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
         # Obtiene los IDs de los documentos aprobados
